@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soirée cosmique — Lalanne vs Durif</title>
+<style>
+  :root {
+    --nuit: #0b0e2a;
+    --nuit-2: #141a45;
+    --carte: #1b2258;
+    --trait: #323b85;
+    --or: #f4c653;
+    --or-fonce: #c9962a;
+    --texte: #f3efe2;
+    --doux: #aab0dc;
+    --vert: #49c98a;
+    --rouge: #e2607a;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, #2a2f7a 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #3a1d5c 0%, transparent 60%),
+      var(--nuit);
+    background-attachment: fixed;
+    color: var(--texte);
+    font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .titre { font-family: Georgia, "Times New Roman", serif; text-wrap: balance; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--or); outline-offset: 2px; }
+
+  header {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--trait);
+  }
+  header h1 { margin: 0; font-size: 1.35rem; letter-spacing: .01em; }
+  header h1 span { color: var(--or); }
+  nav { display: flex; gap: 6px; margin-left: auto; background: var(--nuit-2); padding: 4px; border-radius: 999px; }
+  nav button {
+    border: 0; background: transparent; padding: 8px 20px; border-radius: 999px; font-weight: 600; color: var(--doux);
+  }
+  nav button[aria-selected="true"] { background: var(--or); color: #241a00; }
+
+  main { padding: 20px; max-width: 1500px; margin: 0 auto; }
+  section[hidden] { display: none; }
+
+  .btn {
+    border: 1px solid var(--trait); background: var(--nuit-2); padding: 10px 18px; border-radius: 10px; font-weight: 600;
+  }
+  .btn:hover { border-color: var(--or); }
+  .btn.or { background: var(--or); border-color: var(--or); color: #241a00; }
+  .btn.or:hover { background: #ffd775; }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .btn.discret { background: transparent; color: var(--doux); font-weight: 500; }
+
+  /* ---------- Best-of ---------- */
+  .bestof { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; align-items: start; }
+  .ecran { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 40px #0008; }
+  .ecran iframe, .ecran #player { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .commandes { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+  .commandes .encours { flex: 1 1 240px; min-width: 0; }
+  .encours small { color: var(--doux); display: block; font-variant-numeric: tabular-nums; }
+  .encours strong { font-family: Georgia, serif; font-size: 1.15rem; }
+  .jauge { height: 5px; background: var(--trait); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+  .jauge i { display: block; height: 100%; width: 0; background: var(--or); }
+  label.option { display: flex; align-items: center; gap: 8px; color: var(--doux); font-size: .92rem; margin-top: 10px; }
+  label.option input { width: 18px; height: 18px; accent-color: var(--or); }
+
+  .debat {
+    margin-top: 16px; padding: 18px 22px; border-radius: 14px;
+    background: linear-gradient(135deg, #3b2a05, #2a1d4f); border: 1px solid var(--or-fonce);
+  }
+  .debat .etiquette { color: var(--or); font-weight: 700; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; }
+  .debat p { margin: 6px 0 0; font-family: Georgia, serif; font-size: 1.45rem; line-height: 1.3; }
+  .debat.pitch { background: var(--carte); border-color: var(--trait); }
+  .debat.pitch p { font-family: inherit; font-size: 1rem; line-height: 1.5; color: var(--texte); }
+
+  .liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .liste h2 { margin: 0 0 4px; font-size: 1rem; color: var(--doux); font-family: inherit; font-weight: 600; }
+  .seq {
+    width: 100%; text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px;
+    background: var(--carte); border: 1px solid var(--trait); border-radius: 12px; padding: 12px 14px;
+  }
+  .seq:hover { border-color: var(--or); }
+  .seq .num {
+    grid-row: span 2; align-self: center; width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center; background: var(--nuit-2); font-weight: 700; color: var(--or);
+  }
+  .seq .nom { font-weight: 600; line-height: 1.25; }
+  .seq .tc { color: var(--doux); font-size: .85rem; font-variant-numeric: tabular-nums; }
+  .seq.active { border-color: var(--or); background: #2a2f72; box-shadow: 0 0 0 1px var(--or) inset; }
+  .seq.vue .num { background: var(--vert); color: #06281a; }
+  .seq.bonus .num { color: var(--texte); }
+  .versquiz { margin-top: 6px; width: 100%; padding: 14px; }
+
+  /* ---------- Quiz ---------- */
+  .quiz { max-width: 980px; margin: 0 auto; }
+  .panneau { background: var(--carte); border: 1px solid var(--trait); border-radius: 16px; padding: 26px; }
+  .panneau h2 { margin: 0 0 6px; font-size: 1.9rem; }
+  .panneau > p { color: var(--doux); margin: 0 0 18px; }
+  .ajout { display: flex; gap: 8px; }
+  .ajout input {
+    flex: 1; min-width: 0; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--trait);
+    background: var(--nuit); color: var(--texte); font: inherit;
+  }
+  .joueurs { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; min-height: 20px; }
+  .pastille {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px;
+    background: var(--nuit-2); border: 1px solid var(--trait); font-weight: 600;
+  }
+  .pastille button { border: 0; background: none; color: var(--doux); padding: 0 2px; font-size: 1.1rem; line-height: 1; }
+  button.pastille[aria-pressed="true"] { background: var(--vert); border-color: var(--vert); color: #06281a; }
+
+  .avancee { display: flex; justify-content: space-between; align-items: baseline; color: var(--doux); font-weight: 600; margin-bottom: 10px; }
+  .question { font-family: Georgia, serif; font-size: clamp(1.4rem, 2.6vw, 2.1rem); line-height: 1.25; margin: 0 0 22px; text-wrap: balance; }
+  .choix { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rep {
+    display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 12px;
+    background: var(--nuit-2); border: 2px solid var(--trait); font-size: 1.1rem; line-height: 1.35;
+  }
+  .rep b { color: var(--or); font-family: Georgia, serif; font-size: 1.3rem; line-height: 1.1; }
+  .revele .rep { opacity: .45; }
+  .revele .rep.bonne { opacity: 1; border-color: var(--vert); background: #12402c; }
+  .revele .rep.bonne b { color: var(--vert); }
+  .explication { margin-top: 18px; padding: 14px 18px; border-left: 4px solid var(--vert); background: var(--nuit-2); border-radius: 0 10px 10px 0; }
+  .points { margin-top: 18px; }
+  .points h3 { margin: 0 0 8px; font-size: 1rem; font-family: inherit; color: var(--doux); }
+  .points .joueurs { margin: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-top: 24px; }
+
+  .classement { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
+  .classement li {
+    display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 12px; background: var(--nuit-2); border: 1px solid var(--trait);
+  }
+  .classement li:first-child { border-color: var(--or); background: linear-gradient(135deg, #3b2a05, #2a1d4f); }
+  .classement .rang { font-family: Georgia, serif; font-size: 1.5rem; color: var(--or); text-align: center; }
+  .classement .qui strong { display: block; font-size: 1.15rem; }
+  .classement .qui small { color: var(--doux); }
+  .classement .score { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 1000px) {
+    .bestof { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    main { padding: 14px; }
+    header { padding: 12px 14px; }
+    nav { margin-left: 0; width: 100%; }
+    nav button { flex: 1; }
+    .choix { grid-template-columns: 1fr; }
+    .panneau { padding: 18px; }
+    .debat p { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Lalanne <span>vs</span> Durif — la soirée cosmique</h1>
+  <nav role="tablist">
+    <button role="tab" id="onglet-bestof" aria-selected="true">Le best-of</button>
+    <button role="tab" id="onglet-quiz" aria-selected="false">Le quiz</button>
+  </nav>
+</header>
+
+<main>
+  <section id="vue-bestof" class="bestof">
+    <div>
+      <div class="ecran"><div id="player"></div></div>
+
+      <div class="commandes">
+        <div class="encours">
+          <small id="encours-tc">7 séquences + 1 bonus · environ 23 minutes</small>
+          <strong id="encours-nom">Choisissez une séquence pour démarrer</strong>
+          <div class="jauge"><i id="jauge"></i></div>
+        </div>
+        <button class="btn" id="precedente">◀ Précédente</button>
+        <button class="btn or" id="suivante">Lancer la 1<sup>re</sup> séquence ▶</button>
+      </div>
+      <label class="option"><input type="checkbox" id="autopause" checked> Mettre en pause à la fin de chaque séquence pour débattre</label>
+
+      <div class="debat pitch" id="pitch" hidden>
+        <div class="etiquette">Dans cette séquence</div>
+        <p id="pitch-texte"></p>
+      </div>
+      <div class="debat" id="debat" hidden>
+        <div class="etiquette" id="debat-type">À vous de débattre</div>
+        <p id="debat-texte"></p>
+      </div>
+    </div>
+
+    <div class="liste" id="liste"></div>
+  </section>
+
+  <section id="vue-quiz" class="quiz" hidden></section>
+</main>
+
+<script>
+const VIDEO = 'bHHan7lxPVo';
+
+// début / fin en secondes
+const SEQUENCES = [
+  { debut: 0, fin: 65, nom: "L'intro d'anthologie",
+    pitch: "Présentation du « face-à-face que personne n'avait osé programmer » entre Lalanne et le « Christ cosmique de Bugarach », annoncé comme plus regardé qu'Attal, Philippe, Mélenchon et Le Pen.",
+    type: "Mise en bouche", debat: "Qui a le meilleur titre de noblesse ou de super-héros autour de la table ?" },
+  { debut: 655, fin: 798, nom: "Le complot Teddy Riner",
+    pitch: "Durif affirme que Teddy Riner est un pion placé par le « système Rothschild-Macron » pour refaire le coup de 2017. Lalanne le remercie : ça va leur permettre de réclamer le même temps de parole à l'ARCOM.",
+    type: "Débat", debat: "Quel sportif ou artiste français serait le meilleur candidat « pion du système » en 2027 ?" },
+  { debut: 1675, fin: 1845, nom: "Les arbres du Bhoutan et le « Guide »",
+    pitch: "Lalanne explique qu'au Bhoutan il faut 60 % d'arbres dans la population et vante la sylvothérapie. Juste après, il recadre Durif qui veut être « le guide » : « Attends une seconde, “le guide” ça résonne un peu comme une secte ! »",
+    type: "Débat", debat: "Si on créait un indice de « Bonheur National Brut » à l'apéro, quels seraient vos 3 critères obligatoires ?" },
+  { debut: 2280, fin: 2565, nom: "L'IA à 150 millions et le royaume intraterrien",
+    pitch: "Durif révèle avoir inventé une super-IA en 2004 (Elvita, estimée à 150 M€), explique que ChatGPT et Mistral sont manipulés, et annonce que son royaume sera « planétaire, cosmique et intraterrien » (avec Gandhi dans les cités souterraines d'Agartha et Shambhala).",
+    type: "Débat", debat: "Qui a déjà eu l'idée d'une invention à 150 millions d'euros un soir de soirée (et pourquoi ça ne s'est pas fait) ?" },
+  { debut: 4635, fin: 4830, nom: "Le clash historique au pendule",
+    pitch: "Lalanne démonte l'arbre généalogique de Durif : « Hugues Capet et Clovis, c'est pas possible, il y a un trou de 400 ans ! » Durif réplique qu'il a comblé le trou en s'enfermant 3 mois avec un pendule de radiesthésiste pour remonter jusqu'au 3e fils d'Adam.",
+    type: "Débat", debat: "Quelle est l'excuse la plus improbable que vous ayez jamais sortie pour justifier une énorme approximation ?" },
+  { debut: 5625, fin: 5780, nom: "La primosophie et le 666",
+    pitch: "Lalanne dévoile ses calculs de « primosophie » (addition des nombres premiers selon les lettres) : « Sylvain Durif » vaut 480 (« Jérusalem céleste »), tandis qu'« Emmanuel Macron est la bête » vaut 666.",
+    type: "Jeu apéro", debat: "Chacun invente la signification mystique du numéro de sa plaque d'immatriculation ou de son année de naissance." },
+  { debut: 7080, fin: 7270, nom: "L'abduction et le vaisseau de 300 mètres",
+    pitch: "Le clou du spectacle. Durif raconte son enlèvement extraterrestre à 5 ans (singes et serpents dansant sur son lit) et l'apparition d'un vaisseau doré de 300 m au-dessus de son covoiturage près de Chambord, reparti par un « petit trou de souris dans le ciel ».",
+    type: "Débat", debat: "Si un vaisseau doré de 300 mètres apparaît au-dessus de votre BlaBlaCar à 130 km/h, vous faites quoi ?" },
+  { debut: 8195, fin: 8370, nom: "L'échange de cadeaux diplomatiques", bonus: true,
+    pitch: "Lalanne offre une croix « un peu cosmique » récupérée à la Sainte-Chapelle, et Durif finit par lui offrir une bougie « Oui au Christ » apportée par son chauffeur depuis Angers.",
+    type: "Fin du best-of", debat: "Place au Grand Quiz Cosmique !" },
+];
+
+const QUESTIONS = [
+  { q: "Selon Sylvain Durif, quelle est sa véritable relation avec Jésus ?",
+    choix: ["Il est Jésus réincarné sur Terre pour 2027",
+            "Il est le frère biologique caché de Jésus (contrairement à ce que dit Raël)",
+            "Il est le « Christ cosmique », un compagnon de route qui transporte l'énergie de Jean-Baptiste (l'Homme vert)",
+            "Il est le cousin germain de la Vierge Marie sur Vénus"],
+    bonne: 2, expl: "Durif précise bien à Lalanne (qui craint le blasphème) qu'il n'est pas Jésus, mais le Christ cosmique porteur de l'énergie de Jean-Baptiste." },
+  { q: "Combien vaut l'invention d'intelligence artificielle « Elvita » brevetée par Sylvain Durif en 2004 ?",
+    choix: ["15 millions d'euros", "150 millions d'euros", "1,5 milliard d'euros",
+            "Elle est inestimable car financée par les cités intraterrestres"],
+    bonne: 1, expl: "150 millions d'euros (estimés en 2004)." },
+  { q: "Dans le royaume idéal du Bhoutan cité par Francis Lalanne, quel pourcentage de la « population des êtres vivants » doit obligatoirement être composé d'arbres ?",
+    choix: ["33 %", "50 %", "60 %", "80 %"],
+    bonne: 2, expl: "60 % d'arbres : l'un des 33 critères du Bonheur National Brut vantés par Lalanne." },
+  { q: "Quel est, selon Sylvain Durif, le vrai nom de famille secret des Rothschild ?",
+    choix: ["Les Bauer (orthographié « Bowers » dans son explication)", "Les Rockefeller-Morgan", "Les BlackRock", "Les Mérovingiens de l'ombre"],
+    bonne: 0, expl: "Les Bauer (qu'il épelle B-A-U-E-R), experts en usurpation d'identité selon lui." },
+  { q: "Comment Sylvain Durif a-t-il comblé le trou historique de 400 ans entre Clovis et Hugues Capet pointé par Francis Lalanne ?",
+    choix: ["Grâce à des parchemins secrets trouvés dans le trésor de Rennes-le-Château",
+            "En s'enfermant 3 mois à Arques avec un pendule de radiesthésiste pour remonter jusqu'à Seth, le 3e fils d'Adam",
+            "Par télépathie directe avec Saint-Louis, son ancêtre",
+            "Grâce à une base de données piratée sur Geneanet par des druides"],
+    bonne: 1, expl: "3 mois enfermé avec son pendule, avec lequel il affirme aussi pouvoir retrouver une clé USB à 15 km ou un chat derrière une machine à laver." },
+  { q: "En « primosophie » (le calcul numérologique de Francis Lalanne), quel score obtient « Sylvain Durif » et à quoi cela correspond-il ?",
+    choix: ["666 — « Au plus profond de soi »", "480 — « Jérusalem céleste » et « Krishnamurti »",
+            "333 — « L'axe vertical du roi »", "777 — « Le retour du laurier cathare »"],
+    bonne: 1, expl: "480 (« Jérusalem céleste », « Krishnamurti », « Suivre son âme »). Le piège : 666, c'est le score d'« Emmanuel Macron est la bête »… mais aussi d'« Amour du père et de la mère »." },
+  { q: "Quel test digne du roi Salomon une médium nommée Albane a-t-elle imposé à Sylvain Durif dans un cimetière mérovingien pour vérifier qu'il était bien le Grand Monarque ?",
+    choix: ["Retrouver une clé USB enterrée à 15 km de distance",
+            "Faire apparaître un vaisseau doré de 300 mètres au-dessus d'un BlaBlaCar",
+            "Trouver une abeille cachée à l'intérieur d'une coquille d'escargot",
+            "Guérir le genou d'un rugbyman aussi gros qu'un ballon de foot en lui soufflant dessus"],
+    bonne: 2, expl: "Trouver l'abeille cachée dans une coquille d'escargot. Le rugbyman au genou gros comme un ballon de foot, Frédéric, c'était juste après, en sortant du cimetière !" },
+  { q: "Par quel moyen le vaisseau spatial doré de 300 mètres aperçu par Sylvain Durif au-dessus de l'autoroute près de Chambord a-t-il disparu ?",
+    choix: ["Il s'est désintégré en pluie de lumière bleutée",
+            "Il est parti à la vitesse de la lumière vers Aldébaran",
+            "Il s'est glissé dans un minuscule trou noir, « comme une souris sous une porte »",
+            "Il s'est camouflé en nuage au-dessus du château de Chambord"],
+    bonne: 2, expl: "Il s'est glissé dans un tout petit trou noir comme une souris sous une porte, devant son covoitureur camerounais terrorisé à 130 km/h." },
+];
+
+const $ = id => document.getElementById(id);
+function el(tag, attrs, ...enfants) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'class') n.className = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) n.setAttribute(k, v === true ? '' : v);
+  }
+  for (const e of enfants.flat()) if (e != null && e !== false) n.append(e);
+  return n;
+}
+function tc(s) {
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = Math.floor(s % 60);
+  const mm = String(m).padStart(2, '0'), ss = String(sec).padStart(2, '0');
+  return h ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
+}
+function duree(s) { return `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')}`; }
+
+/* ---------- Onglets ---------- */
+function montrer(vue) {
+  for (const v of ['bestof', 'quiz']) {
+    $('vue-' + v).hidden = v !== vue;
+    $('onglet-' + v).setAttribute('aria-selected', v === vue);
+  }
+  if (vue === 'quiz' && player && player.pauseVideo) player.pauseVideo();
+  window.scrollTo(0, 0);
+}
+$('onglet-bestof').onclick = () => montrer('bestof');
+$('onglet-quiz').onclick = () => montrer('quiz');
+
+/* ---------- Best-of ---------- */
+let player = null, pret = false, demarre = false;
+let courante = -1;      // séquence suivie (pause automatique à la fin)
+const vues = new Set();
+
+SEQUENCES.forEach((s, i) => {
+  $('liste').append(el('button', { class: 'seq' + (s.bonus ? ' bonus' : ''), id: 'seq-' + i, onclick: () => lancer(i) },
+    el('span', { class: 'num' }, s.bonus ? '★' : String(i + 1)),
+    el('span', { class: 'nom' }, (s.bonus ? 'Bonus — ' : '') + s.nom),
+    el('span', { class: 'tc' }, `${tc(s.debut)} → ${tc(s.fin)} · ${duree(s.fin - s.debut)}`)));
+});
+$('liste').append(el('button', { class: 'btn or versquiz', onclick: () => montrer('quiz') }, 'Passer au Grand Quiz Cosmique →'));
+
+const tag = document.createElement('script');
+tag.src = 'https://www.youtube.com/iframe_api';
+document.head.append(tag);
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player', {
+    videoId: VIDEO,
+    playerVars: { rel: 0, playsinline: 1 },
+    events: { onReady: () => { pret = true; }, onStateChange: e => { if (e.data === YT.PlayerState.PLAYING) demarre = true; } },
+  });
+}
+
+function lancer(i) {
+  if (!pret || i < 0 || i >= SEQUENCES.length) return;
+  const s = SEQUENCES[i];
+  courante = i;
+  if (demarre) { player.seekTo(s.debut, true); player.playVideo(); }
+  else player.loadVideoById({ videoId: VIDEO, startSeconds: s.debut });
+  $('debat').hidden = true;
+  $('pitch').hidden = false;
+  $('pitch-texte').textContent = s.pitch;
+  afficher();
+  if (window.innerWidth <= 1000) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function afficher() {
+  SEQUENCES.forEach((s, i) => {
+    $('seq-' + i).classList.toggle('active', i === courante);
+    $('seq-' + i).classList.toggle('vue', vues.has(i));
+  });
+  const s = SEQUENCES[courante];
+  if (s) {
+    $('encours-tc').textContent = `${s.bonus ? 'Bonus' : `Séquence ${courante + 1} sur 7`} · ${tc(s.debut)} → ${tc(s.fin)}`;
+    $('encours-nom').textContent = s.nom;
+  }
+  const prochaine = courante + 1;
+  $('precedente').disabled = courante <= 0;
+  if (courante < 0) $('suivante').innerHTML = 'Lancer la 1<sup>re</sup> séquence ▶';
+  else if (prochaine >= SEQUENCES.length) $('suivante').textContent = 'Passer au quiz →';
+  else $('suivante').textContent = SEQUENCES[prochaine].bonus ? 'Le bonus ▶' : 'Séquence suivante ▶';
+}
+$('suivante').onclick = () => courante + 1 >= SEQUENCES.length ? montrer('quiz') : lancer(courante + 1);
+$('precedente').onclick = () => lancer(courante - 1);
+
+function finSequence() {
+  const s = SEQUENCES[courante];
+  vues.add(courante);
+  $('pitch').hidden = true;
+  $('debat-type').textContent = s.type;
+  $('debat-texte').textContent = s.debat;
+  $('debat').hidden = false;
+  $('jauge').style.width = '100%';
+  afficher();
+}
+
+setInterval(() => {
+  if (!pret || courante < 0 || !player.getCurrentTime) return;
+  const s = SEQUENCES[courante], t = player.getCurrentTime();
+  // si on se balade ailleurs dans la vidéo à la main, on ne coupe plus
+  if (t < s.debut - 3 || t > s.fin + 3) return;
+  $('jauge').style.width = Math.max(0, Math.min(100, (t - s.debut) / (s.fin - s.debut) * 100)) + '%';
+  if (t >= s.fin && !vues.has(courante)) {
+    if ($('autopause').checked && player.getPlayerState() === YT.PlayerState.PLAYING) player.pauseVideo();
+    finSequence();
+  }
+}, 250);
+
+/* ---------- Quiz ---------- */
+const CLE = 'apero-quiz-v1';
+let etat = { joueurs: [], etape: 'accueil', n: 0, revele: false, bons: {} };
+try { etat = Object.assign(etat, JSON.parse(localStorage.getItem(CLE)) || {}); } catch (e) {}
+function sauver() { try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) {} }
+function score(j) { return Object.values(etat.bons).filter(l => l.includes(j)).length; }
+
+function quiz() {
+  sauver();
+  const vue = $('vue-quiz');
+  vue.replaceChildren(etat.etape === 'accueil' ? accueil() : etat.etape === 'fin' ? fin() : question());
+}
+
+function accueil() {
+  const champ = el('input', { type: 'text', placeholder: 'Prénom ou nom d\'équipe', maxlength: 24, 'aria-label': 'Nom du joueur' });
+  const ajouter = () => {
+    const nom = champ.value.trim();
+    if (nom && !etat.joueurs.includes(nom)) etat.joueurs.push(nom);
+    quiz();
+    $('vue-quiz').querySelector('input').focus();
+  };
+  champ.addEventListener('keydown', e => { if (e.key === 'Enter') ajouter(); });
+  return el('div', { class: 'panneau' },
+    el('h2', {}, 'Le Grand Quiz Cosmique'),
+    el('p', {}, `${QUESTIONS.length} questions sur ce que vous venez de voir. Ajoutez les joueurs (ou les équipes) pour compter les points, ou lancez directement sans score.`),
+    el('div', { class: 'ajout' }, champ, el('button', { class: 'btn', onclick: ajouter }, 'Ajouter')),
+    el('div', { class: 'joueurs' }, etat.joueurs.map(j =>
+      el('span', { class: 'pastille' }, j, el('button', { 'aria-label': 'Retirer ' + j, onclick: () => {
+        etat.joueurs = etat.joueurs.filter(x => x !== j);
+        for (const k in etat.bons) etat.bons[k] = etat.bons[k].filter(x => x !== j);
+        quiz();
+      } }, '×')))),
+    el('button', { class: 'btn or', onclick: () => { etat.etape = 'jeu'; etat.n = 0; etat.revele = false; etat.bons = {}; quiz(); } }, 'C\'est parti ▶'));
+}
+
+function question() {
+  const q = QUESTIONS[etat.n], bons = etat.bons[etat.n] || [];
+  const derniere = etat.n === QUESTIONS.length - 1;
+  return el('div', { class: 'panneau' + (etat.revele ? ' revele' : '') },
+    el('div', { class: 'avancee' }, el('span', {}, `Question ${etat.n + 1} / ${QUESTIONS.length}`),
+      el('button', { class: 'btn discret', onclick: () => { etat.etape = 'accueil'; quiz(); } }, 'Joueurs')),
+    el('h2', { class: 'question' }, q.q),
+    el('div', { class: 'choix' }, q.choix.map((c, i) =>
+      el('div', { class: 'rep' + (i === q.bonne ? ' bonne' : '') }, el('b', {}, 'ABCD'[i]), el('span', {}, c)))),
+    etat.revele && el('div', { class: 'explication' }, el('strong', {}, `Réponse ${'ABCD'[q.bonne]}. `), q.expl),
+    etat.revele && etat.joueurs.length > 0 && el('div', { class: 'points' },
+      el('h3', {}, 'Qui avait la bonne réponse ?'),
+      el('div', { class: 'joueurs' }, etat.joueurs.map(j =>
+        el('button', { class: 'pastille', 'aria-pressed': String(bons.includes(j)), onclick: () => {
+          etat.bons[etat.n] = bons.includes(j) ? bons.filter(x => x !== j) : [...bons, j];
+          quiz();
+        } }, `${j} · ${score(j)}`)))),
+    el('div', { class: 'actions' },
+      el('button', { class: 'btn', disabled: etat.n === 0, onclick: () => { etat.n--; etat.revele = true; quiz(); } }, '◀ Précédente'),
+      etat.revele
+        ? el('button', { class: 'btn or', onclick: () => {
+            if (derniere) etat.etape = 'fin'; else { etat.n++; etat.revele = false; }
+            quiz(); window.scrollTo(0, 0);
+          } }, derniere ? 'Voir le classement →' : 'Question suivante ▶')
+        : el('button', { class: 'btn or', onclick: () => { etat.revele = true; quiz(); } }, 'Révéler la réponse')));
+}
+
+function fin() {
+  const rangs = etat.joueurs.map(j => ({ j, s: score(j) })).sort((a, b) => b.s - a.s);
+  const titre = (r, i) => i === 0 || r.s === rangs[0].s ? 'Christ cosmique de la soirée'
+    : i === rangs.length - 1 ? 'Pion du système' : r.s >= QUESTIONS.length / 2 ? 'Grand Monarque en devenir' : 'Apprenti radiesthésiste';
+  return el('div', { class: 'panneau' },
+    el('h2', {}, rangs.length ? 'Le classement cosmique' : 'Fin du quiz'),
+    el('p', {}, rangs.length ? 'En cas d\'égalité, départage au pendule.' : 'Merci d\'avoir joué. La vérité est ailleurs, probablement sous Bugarach.'),
+    el('ol', { class: 'classement' }, rangs.map((r, i) =>
+      el('li', {}, el('span', { class: 'rang' }, String(rangs.findIndex(x => x.s === r.s) + 1)),
+        el('span', { class: 'qui' }, el('strong', {}, r.j), el('small', {}, titre(r, i))),
+        el('span', { class: 'score' }, `${r.s} / ${QUESTIONS.length}`)))),
+    el('div', { class: 'actions' },
+      el('button', { class: 'btn', onclick: () => { etat.etape = 'jeu'; etat.n = QUESTIONS.length - 1; etat.revele = true; quiz(); } }, '◀ Revoir les questions'),
+      el('button', { class: 'btn', onclick: () => { etat.etape = 'accueil'; etat.n = 0; etat.revele = false; etat.bons = {}; quiz(); } }, 'Rejouer')));
+}
+
+afficher();
+quiz();
+</script>
+</body>
+</html>
