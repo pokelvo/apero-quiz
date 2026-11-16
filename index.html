@@ -19,8 +19,6 @@
 <main>
   <section id="vue-bestof" class="bestof">
     <div>
-      <div class="ecran"><div id="player"></div></div>
-
       <div class="commandes">
         <div class="encours">
           <small id="encours-tc">7 séquences + 1 bonus · environ 23 minutes</small>
@@ -28,10 +26,8 @@
           <div class="jauge"><i id="jauge"></i></div>
         </div>
         <button class="btn" id="precedente">◀ Précédente</button>
-        <button class="btn or" id="suivante">Lancer la 1<sup>re</sup> séquence ▶</button>
+        <button class="btn or" id="suivante">Première séquence ▶</button>
       </div>
-      <label class="option"><input type="checkbox" id="autopause" checked> Mettre en pause à la fin de chaque séquence pour débattre</label>
-
       <div class="debat pitch" id="pitch" hidden>
         <div class="etiquette">Dans cette séquence</div>
         <p id="pitch-texte"></p>
@@ -40,6 +36,9 @@
         <div class="etiquette" id="debat-type">À vous de débattre</div>
         <p id="debat-texte"></p>
       </div>
+
+      <div class="ecran"><div id="player"></div></div>
+      <label class="option"><input type="checkbox" id="autopause" checked> Mettre en pause à la fin de chaque séquence pour débattre</label>
     </div>
 
     <div class="liste" id="liste"></div>
@@ -151,7 +150,9 @@ $('onglet-bestof').onclick = () => montrer('bestof');
 $('onglet-quiz').onclick = () => montrer('quiz');
 
 /* ---------- Best-of ---------- */
-let player = null, pret = false, demarre = false;
+let player = null, pret = false;
+let attente = false;    // séquence calée au début, pas encore lancée (le temps de lire le résumé)
+let terminee = false;
 let courante = -1;      // séquence suivie (pause automatique à la fin)
 const vues = new Set();
 
@@ -170,7 +171,7 @@ function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     videoId: VIDEO,
     playerVars: { rel: 0, playsinline: 1 },
-    events: { onReady: () => { pret = true; }, onStateChange: e => { if (e.data === YT.PlayerState.PLAYING) demarre = true; } },
+    events: { onReady: () => { pret = true; }, onStateChange: e => { if (e.data === YT.PlayerState.PLAYING && attente) { attente = false; afficher(); } } },
   });
 }
 
@@ -178,8 +179,10 @@ function lancer(i) {
   if (!pret || i < 0 || i >= SEQUENCES.length) return;
   const s = SEQUENCES[i];
   courante = i;
-  if (demarre) { player.seekTo(s.debut, true); player.playVideo(); }
-  else player.loadVideoById({ videoId: VIDEO, startSeconds: s.debut });
+  attente = true;
+  terminee = false;
+  player.cueVideoById({ videoId: VIDEO, startSeconds: s.debut });
+  $('jauge').style.width = '0';
   $('debat').hidden = true;
   $('pitch').hidden = false;
   $('pitch-texte').textContent = s.pitch;
@@ -199,16 +202,22 @@ function afficher() {
   }
   const prochaine = courante + 1;
   $('precedente').disabled = courante <= 0;
-  if (courante < 0) $('suivante').innerHTML = 'Lancer la 1<sup>re</sup> séquence ▶';
+  if (courante < 0) $('suivante').textContent = 'Première séquence ▶';
+  else if (attente) $('suivante').textContent = 'Lancer la séquence ▶';
   else if (prochaine >= SEQUENCES.length) $('suivante').textContent = 'Passer au quiz →';
   else $('suivante').textContent = SEQUENCES[prochaine].bonus ? 'Le bonus ▶' : 'Séquence suivante ▶';
 }
-$('suivante').onclick = () => courante + 1 >= SEQUENCES.length ? montrer('quiz') : lancer(courante + 1);
+$('suivante').onclick = () => {
+  if (attente && pret) { attente = false; player.playVideo(); afficher(); }
+  else if (courante + 1 >= SEQUENCES.length) montrer('quiz');
+  else lancer(courante + 1);
+};
 $('precedente').onclick = () => lancer(courante - 1);
 
 function finSequence() {
   const s = SEQUENCES[courante];
   vues.add(courante);
+  terminee = true;
   $('pitch').hidden = true;
   $('debat-type').textContent = s.type;
   $('debat-texte').textContent = s.debat;
@@ -218,12 +227,12 @@ function finSequence() {
 }
 
 setInterval(() => {
-  if (!pret || courante < 0 || !player.getCurrentTime) return;
+  if (!pret || courante < 0 || attente || !player.getCurrentTime) return;
   const s = SEQUENCES[courante], t = player.getCurrentTime();
   // si on se balade ailleurs dans la vidéo à la main, on ne coupe plus
   if (t < s.debut - 3 || t > s.fin + 3) return;
   $('jauge').style.width = Math.max(0, Math.min(100, (t - s.debut) / (s.fin - s.debut) * 100)) + '%';
-  if (t >= s.fin && !vues.has(courante)) {
+  if (t >= s.fin && !terminee) {
     if ($('autopause').checked && player.getPlayerState() === YT.PlayerState.PLAYING) player.pauseVideo();
     finSequence();
   }
