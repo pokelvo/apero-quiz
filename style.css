@@ -190,6 +190,15 @@ button.pastille[aria-pressed="true"] { background: var(--vert); border-color: va
 .points .joueurs { margin: 0; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-top: 28px; }
 
+.gifs { display: flex; gap: 14px; align-items: stretch; justify-content: center; height: clamp(190px, 34vh, 320px); }
+.gifs figure { position: relative; flex: 1 1 0; min-width: 0; margin: 0; border-radius: 20px; overflow: hidden; border: 1px solid var(--bord); box-shadow: var(--ombre); }
+.gifs figure.etroit { flex: 0 0 auto; aspect-ratio: 165 / 299; }
+.gifs img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gifs figcaption {
+  position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 8px 12px; border-radius: 12px;
+  background: rgba(10, 8, 20, .5); border: 1px solid var(--bord-doux); font-weight: 700; font-size: .92rem; line-height: 1.25;
+  -webkit-backdrop-filter: var(--flou); backdrop-filter: var(--flou);
+}
 .classement { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 10px; }
 .classement li {
   display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 14px;

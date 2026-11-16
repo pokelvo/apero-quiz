@@ -298,6 +298,10 @@ function fin() {
   return el('div', { class: 'panneau' },
     el('h2', {}, rangs.length ? 'Le classement cosmique' : 'Fin du quiz'),
     el('p', {}, rangs.length ? 'En cas d\'égalité, départage au pendule.' : 'Merci d\'avoir joué. La vérité est ailleurs, probablement sous Bugarach.'),
+    rangs.length > 1 && rangs.at(-1).s < rangs[0].s && el('div', { class: 'gifs' },
+      el('figure', { class: 'etroit' },
+        el('img', { src: 'gifs/doigt.gif', alt: 'Un chiot tout mignon qui fait un doigt d\'honneur' }),
+        el('figcaption', {}, `Avec toute notre tendresse, ${rangs.at(-1).j}`))),
     el('ol', { class: 'classement' }, rangs.map((r, i) =>
       el('li', {}, el('span', { class: 'rang' }, String(rangs.findIndex(x => x.s === r.s) + 1)),
         el('span', { class: 'qui' }, el('strong', {}, r.j), el('small', {}, titre(r, i))),
